@@ -51,7 +51,7 @@ async function run() {
         app.put('/coffee/:id', async (req, res) => {
             const id = req.params.id;
             const coffee = req.body;
-            
+
             const filter = { _id: new ObjectId(id) };
             const option = { upsert: true };
             const updatedCoffee = {
@@ -78,9 +78,34 @@ async function run() {
 
 
         //user related apis
-        app.post('/user', async(req, res) => {
+        app.get('/user', async (req, res) => {
+            const cursor = userCollection.find();
+            const users = await cursor.toArray();
+            res.send(users);
+        })
+
+        app.post('/user', async (req, res) => {
             const user = req.body;
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.patch('/user', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email }
+            const updatedDoc = {
+                $set: {
+                    lastLoggedAt: user.lastLoggedAt
+                }
+            }
+            const result = await userCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userCollection.deleteOne(query);
             res.send(result);
         })
 
